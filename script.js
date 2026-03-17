@@ -1948,3 +1948,509 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+// ================== ПАКЕТ ОБНОВЛЕНИЙ 1.0.1 ==================
+// Исправление ошибок и багов
+
+// ИСПРАВЛЕНИЕ 1: Ошибка с filterApps (стрелочная функция)
+function filterApps() {
+    const search = document.getElementById('storeSearch').value.toLowerCase();
+    const cards = document.querySelectorAll('.app-card');
+    
+    cards.forEach(function(card) {
+        const title = card.querySelector('h3').textContent.toLowerCase();
+        if (title.includes(search)) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+
+// ИСПРАВЛЕНИЕ 2: Ошибка с filterCategory
+function filterCategory(category) {
+    const buttons = document.querySelectorAll('.category-btn');
+    buttons.forEach(function(btn) {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    
+    const cards = document.querySelectorAll('.app-card');
+    cards.forEach(function(card) {
+        const cat = card.querySelector('.app-category').textContent;
+        if (category === 'all' || cat === category) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+
+// ИСПРАВЛЕНИЕ 3: Ошибка с switchSettingsTab
+function switchSettingsTab(tab) {
+    const tabs = document.querySelectorAll('.settings-tab');
+    tabs.forEach(function(t) {
+        t.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    renderSettings(tab);
+}
+
+// ИСПРАВЛЕНИЕ 4: Проверка на существование элементов в играх
+function initSnake() {
+    snakeGame.canvas = document.getElementById('snakeCanvas');
+    if (!snakeGame.canvas) {
+        console.log('Snake canvas not found');
+        return;
+    }
+    
+    snakeGame.ctx = snakeGame.canvas.getContext('2d');
+    snakeGame.snake = [{x: 10, y: 10}];
+    snakeGame.direction = 'right';
+    snakeGame.nextDirection = 'right';
+    snakeGame.score = 0;
+    snakeGame.gameOver = false;
+    snakeGame.paused = false;
+    
+    generateFood();
+    updateSnakeScore();
+    
+    if (snakeGame.interval) clearInterval(snakeGame.interval);
+    snakeGame.interval = setInterval(updateSnake, snakeGame.speed);
+    
+    document.addEventListener('keydown', handleSnakeKeys);
+}
+
+// ИСПРАВЛЕНИЕ 5: Проверка на существование элементов в тетрисе
+function initTetris() {
+    tetrisGame.canvas = document.getElementById('tetrisCanvas');
+    tetrisGame.nextCanvas = document.getElementById('nextPieceCanvas');
+    
+    if (!tetrisGame.canvas || !tetrisGame.nextCanvas) {
+        console.log('Tetris canvas not found');
+        return;
+    }
+    
+    tetrisGame.ctx = tetrisGame.canvas.getContext('2d');
+    tetrisGame.nextCtx = tetrisGame.nextCanvas.getContext('2d');
+    
+    tetrisGame.grid = Array(20).fill().map(() => Array(10).fill(0));
+    tetrisGame.score = 0;
+    tetrisGame.level = 1;
+    tetrisGame.gameOver = false;
+    
+    tetrisGame.nextPiece = getRandomPiece();
+    spawnNewPiece();
+    
+    if (tetrisGame.interval) clearInterval(tetrisGame.interval);
+    tetrisGame.interval = setInterval(updateTetris, tetrisGame.speed);
+    
+    document.addEventListener('keydown', handleTetrisKeys);
+    
+    updateTetrisScore();
+    drawTetris();
+}
+
+// ИСПРАВЛЕНИЕ 6: Проверка на существование элементов в 2048
+function init2048() {
+    const container = document.getElementById('grid2048');
+    if (!container) {
+        console.log('2048 container not found');
+        return;
+    }
+    
+    game2048.grid = Array(4).fill().map(() => Array(4).fill(0));
+    game2048.score = 0;
+    game2048.gameOver = false;
+    game2048.won = false;
+    
+    addNewTile();
+    addNewTile();
+    render2048();
+    
+    document.addEventListener('keydown', handle2048Keys);
+}
+
+// ИСПРАВЛЕНИЕ 7: Безопасное добавление в taskbar
+function addToTaskbar(appId) {
+    const taskbar = document.getElementById('taskbar');
+    if (!taskbar) return;
+    
+    if (document.querySelector(`.taskbar-item[data-app="${appId}"]`)) return;
+    
+    const icons = {
+        'store': 'fa-shopping-cart',
+        'music': 'fa-music',
+        'games': 'fa-gamepad',
+        'photos': 'fa-images',
+        'browser': 'fa-globe',
+        'calculator': 'fa-calculator',
+        'notes': 'fa-pen',
+        'files': 'fa-folder',
+        'terminal': 'fa-terminal',
+        'settings': 'fa-cog',
+        'profile': 'fa-user-circle',
+        'gameSnake': 'fa-gamepad',
+        'gameTetris': 'fa-th-large',
+        'game2048': 'fa-th'
+    };
+    
+    const names = {
+        'store': 'Магазин',
+        'music': 'Музыка',
+        'games': 'Игры',
+        'photos': 'Галерея',
+        'browser': 'Браузер',
+        'calculator': 'Калькулятор',
+        'notes': 'Заметки',
+        'files': 'Файлы',
+        'terminal': 'Терминал',
+        'settings': 'Настройки',
+        'profile': 'Профиль',
+        'gameSnake': 'Змейка',
+        'gameTetris': 'Тетрис',
+        'game2048': '2048'
+    };
+    
+    const item = document.createElement('div');
+    item.className = 'taskbar-item active';
+    item.setAttribute('data-app', appId);
+    item.setAttribute('title', names[appId] || appId);
+    item.innerHTML = `<i class="fas ${icons[appId] || 'fa-window'}"></i>`;
+    
+    item.onclick = function() {
+        const win = document.getElementById(appId);
+        if (win && win.classList.contains('active')) {
+            closeWindow(appId);
+        } else {
+            openApp(appId);
+        }
+    };
+    
+    taskbar.appendChild(item);
+}
+
+// ИСПРАВЛЕНИЕ 8: Безопасное открытие игры
+function openGame(gameId) {
+    const windows = {
+        'snake': 'gameSnake',
+        'tetris': 'gameTetris',
+        '2048': 'game2048'
+    };
+    
+    const windowId = windows[gameId];
+    if (windowId) {
+        openApp(windowId);
+    }
+}
+
+// ИСПРАВЛЕНИЕ 9: Добавление обработчика для глобальных клавиш
+function handleGlobalKeys(e) {
+    // Alt + число для открытия приложений
+    if (e.altKey) {
+        const apps = ['store', 'music', 'games', 'photos', 'calculator', 'notes', 'terminal', 'settings'];
+        const num = parseInt(e.key);
+        if (num >= 1 && num <= apps.length) {
+            e.preventDefault();
+            openApp(apps[num - 1]);
+        }
+    }
+    
+    // Esc для закрытия окон
+    if (e.key === 'Escape') {
+        if (activeWindows.length > 0) {
+            closeWindow(activeWindows[activeWindows.length - 1]);
+        }
+    }
+    
+    // Пробел для паузы в змейке
+    if (e.key === ' ' && document.getElementById('gameSnake').classList.contains('active')) {
+        e.preventDefault();
+        toggleSnakePause();
+    }
+}
+
+// ИСПРАВЛЕНИЕ 10: Добавление недостающих функций
+
+// Функция для генерации еды в змейке
+function generateFood() {
+    do {
+        snakeGame.food = {
+            x: Math.floor(Math.random() * 20),
+            y: Math.floor(Math.random() * 20)
+        };
+    } while (snakeGame.snake.some(function(s) { 
+        return s.x === snakeGame.food.x && s.y === snakeGame.food.y; 
+    }));
+}
+
+// Функция обновления счета в змейке
+function updateSnakeScore() {
+    const scoreEl = document.getElementById('snakeScore');
+    const highScoreEl = document.getElementById('snakeHighScore');
+    const gamesPlayedEl = document.getElementById('snakeGamesPlayed');
+    
+    if (scoreEl) scoreEl.textContent = `Счет: ${snakeGame.score}`;
+    if (highScoreEl) highScoreEl.textContent = snakeGame.highScore;
+    if (gamesPlayedEl) gamesPlayedEl.textContent = snakeGame.gamesPlayed;
+}
+
+// Функция обновления счета в тетрисе
+function updateTetrisScore() {
+    const scoreEl = document.getElementById('tetrisScore');
+    const levelEl = document.getElementById('tetrisLevel');
+    const highScoreEl = document.getElementById('tetrisHighScore');
+    const gamesPlayedEl = document.getElementById('tetrisGamesPlayed');
+    
+    if (scoreEl) scoreEl.textContent = `Счет: ${tetrisGame.score}`;
+    if (levelEl) levelEl.textContent = `Уровень: ${tetrisGame.level}`;
+    if (highScoreEl) highScoreEl.textContent = tetrisGame.highScore;
+    if (gamesPlayedEl) gamesPlayedEl.textContent = tetrisGame.gamesPlayed;
+}
+
+// Функция рендера 2048
+function render2048() {
+    const container = document.getElementById('grid2048');
+    if (!container) return;
+    
+    let html = '';
+    for (let i = 0; i < 4; i++) {
+        for (let j = 0; j < 4; j++) {
+            const value = game2048.grid[i][j];
+            html += `<div class="grid-cell" data-value="${value}">${value !== 0 ? value : ''}</div>`;
+        }
+    }
+    
+    container.innerHTML = html;
+    
+    const scoreEl = document.getElementById('game2048Score');
+    if (scoreEl) scoreEl.textContent = `Счет: ${game2048.score}`;
+    
+    if (game2048.score > game2048.highScore) {
+        game2048.highScore = game2048.score;
+        localStorage.setItem('game2048HighScore', game2048.highScore);
+    }
+    
+    const highScoreEl = document.getElementById('game2048HighScore');
+    if (highScoreEl) highScoreEl.textContent = game2048.highScore;
+}
+
+// Функция проверки окончания игры в 2048
+function checkGameOver2048() {
+    // Проверка на победу
+    for (let i = 0; i < 4; i++) {
+        for (let j = 0; j < 4; j++) {
+            if (game2048.grid[i][j] === 2048 && !game2048.won) {
+                game2048.won = true;
+                showNotification('Победа!', 'Вы достигли 2048!', 'success');
+            }
+        }
+    }
+    
+    // Проверка на проигрыш
+    let hasEmpty = false;
+    for (let i = 0; i < 4; i++) {
+        for (let j = 0; j < 4; j++) {
+            if (game2048.grid[i][j] === 0) hasEmpty = true;
+        }
+    }
+    
+    if (!hasEmpty) {
+        // Проверка возможности ходов
+        let canMove = false;
+        for (let i = 0; i < 4; i++) {
+            for (let j = 0; j < 4; j++) {
+                const current = game2048.grid[i][j];
+                if ((i < 3 && current === game2048.grid[i + 1][j]) ||
+                    (j < 3 && current === game2048.grid[i][j + 1])) {
+                    canMove = true;
+                }
+            }
+        }
+        
+        if (!canMove) {
+            game2048.gameOver = true;
+            game2048.gamesPlayed++;
+            localStorage.setItem('game2048GamesPlayed', game2048.gamesPlayed);
+            showNotification('Игра окончена', `Счет: ${game2048.score}`, 'error');
+        }
+    }
+}
+
+// Функция добавления новой плитки в 2048
+function addNewTile() {
+    const empty = [];
+    for (let i = 0; i < 4; i++) {
+        for (let j = 0; j < 4; j++) {
+            if (game2048.grid[i][j] === 0) {
+                empty.push({x: i, y: j});
+            }
+        }
+    }
+    
+    if (empty.length > 0) {
+        const randomIndex = Math.floor(Math.random() * empty.length);
+        const {x, y} = empty[randomIndex];
+        game2048.grid[x][y] = Math.random() < 0.9 ? 2 : 4;
+    }
+}
+
+// Функция обработки движения в 2048
+function game2048Move(direction) {
+    if (game2048.gameOver) return;
+    
+    let moved = false;
+    const oldGrid = JSON.parse(JSON.stringify(game2048.grid));
+    
+    if (direction === 'left') {
+        for (let i = 0; i < 4; i++) {
+            const row = game2048.grid[i].filter(function(val) { return val !== 0; });
+            for (let j = 0; j < row.length - 1; j++) {
+                if (row[j] === row[j + 1]) {
+                    row[j] *= 2;
+                    game2048.score += row[j];
+                    row.splice(j + 1, 1);
+                }
+            }
+            while (row.length < 4) row.push(0);
+            game2048.grid[i] = row;
+        }
+    } else if (direction === 'right') {
+        for (let i = 0; i < 4; i++) {
+            let row = game2048.grid[i].filter(function(val) { return val !== 0; });
+            for (let j = row.length - 1; j > 0; j--) {
+                if (row[j] === row[j - 1]) {
+                    row[j] *= 2;
+                    game2048.score += row[j];
+                    row.splice(j - 1, 1);
+                    j--;
+                }
+            }
+            while (row.length < 4) row.unshift(0);
+            game2048.grid[i] = row;
+        }
+    } else if (direction === 'up') {
+        for (let j = 0; j < 4; j++) {
+            const col = [];
+            for (let i = 0; i < 4; i++) {
+                if (game2048.grid[i][j] !== 0) col.push(game2048.grid[i][j]);
+            }
+            for (let i = 0; i < col.length - 1; i++) {
+                if (col[i] === col[i + 1]) {
+                    col[i] *= 2;
+                    game2048.score += col[i];
+                    col.splice(i + 1, 1);
+                }
+            }
+            while (col.length < 4) col.push(0);
+            for (let i = 0; i < 4; i++) {
+                game2048.grid[i][j] = col[i];
+            }
+        }
+    } else if (direction === 'down') {
+        for (let j = 0; j < 4; j++) {
+            const col = [];
+            for (let i = 0; i < 4; i++) {
+                if (game2048.grid[i][j] !== 0) col.push(game2048.grid[i][j]);
+            }
+            for (let i = col.length - 1; i > 0; i--) {
+                if (col[i] === col[i - 1]) {
+                    col[i] *= 2;
+                    game2048.score += col[i];
+                    col.splice(i - 1, 1);
+                    i--;
+                }
+            }
+            while (col.length < 4) col.unshift(0);
+            for (let i = 0; i < 4; i++) {
+                game2048.grid[i][j] = col[i];
+            }
+        }
+    }
+    
+    // Проверка на изменения
+    for (let i = 0; i < 4; i++) {
+        for (let j = 0; j < 4; j++) {
+            if (oldGrid[i][j] !== game2048.grid[i][j]) {
+                moved = true;
+                break;
+            }
+        }
+    }
+    
+    if (moved) {
+        addNewTile();
+        render2048();
+        checkGameOver2048();
+    }
+}
+
+// ИСПРАВЛЕНИЕ 11: Загрузка статистики
+function loadStats() {
+    try {
+        snakeGame.highScore = parseInt(localStorage.getItem('snakeHighScore')) || 0;
+        snakeGame.gamesPlayed = parseInt(localStorage.getItem('snakeGamesPlayed')) || 0;
+        
+        tetrisGame.highScore = parseInt(localStorage.getItem('tetrisHighScore')) || 0;
+        tetrisGame.gamesPlayed = parseInt(localStorage.getItem('tetrisGamesPlayed')) || 0;
+        
+        game2048.highScore = parseInt(localStorage.getItem('game2048HighScore')) || 0;
+        game2048.gamesPlayed = parseInt(localStorage.getItem('game2048GamesPlayed')) || 0;
+    } catch(e) {
+        console.log('Error loading stats:', e);
+    }
+}
+
+// ИСПРАВЛЕНИЕ 12: Функция перезапуска змейки
+function restartSnake() {
+    if (snakeGame.interval) {
+        clearInterval(snakeGame.interval);
+    }
+    initSnake();
+}
+
+// ИСПРАВЛЕНИЕ 13: Функция перезапуска тетриса
+function restartTetris() {
+    if (tetrisGame.interval) {
+        clearInterval(tetrisGame.interval);
+    }
+    initTetris();
+}
+
+// ИСПРАВЛЕНИЕ 14: Функция перезапуска 2048
+function restart2048() {
+    init2048();
+}
+
+// ИСПРАВЛЕНИЕ 15: Функция паузы в змейке
+function toggleSnakePause() {
+    snakeGame.paused = !snakeGame.paused;
+    const icon = document.getElementById('snakePauseIcon');
+    if (icon) {
+        icon.className = snakeGame.paused ? 'fas fa-play' : 'fas fa-pause';
+    }
+}
+
+// ИСПРАВЛЕНИЕ 16: Функция окончания игры в змейке
+function gameOverSnake() {
+    snakeGame.gameOver = true;
+    if (snakeGame.interval) {
+        clearInterval(snakeGame.interval);
+    }
+    
+    if (snakeGame.score > snakeGame.highScore) {
+        snakeGame.highScore = snakeGame.score;
+        localStorage.setItem('snakeHighScore', snakeGame.highScore);
+    }
+    
+    snakeGame.gamesPlayed++;
+    localStorage.setItem('snakeGamesPlayed', snakeGame.gamesPlayed);
+    
+    updateSnakeScore();
+    showNotification('Игра окончена', `Счет: ${snakeGame.score}`, 'error');
+}
+
+// ИСПРАВЛЕНИЕ 17: Добавление глобального обработчика клавиш
+document.addEventListener('keydown', handleGlobalKeys);
+
+// ИСПРАВЛЕНИЕ 18: Проверка существования функций при загрузке
+console.log('Micim OS Update 1.0.1 installed successfully!');
