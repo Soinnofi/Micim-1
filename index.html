@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Untitled</title>
+    <link rel="stylesheet" href="./style.css">
+
+  </head>
+    
+  <body>
+  <!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Micim OS — Полная версия</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="welcome-screen" id="welcomeScreen">
+        <canvas id="wavesCanvas"></canvas>
+        <div class="welcome-content">
+            <div class="welcome-logo">
+                <i class="fas fa-circle"></i>
+                <span>MICIM</span>
+            </div>
+            <h1>Добро пожаловать</h1>
+            <p class="welcome-subtitle">Нажмите любую клавишу для входа</p>
+            <div class="welcome-progress">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="welcomeProgress"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="desktop" id="desktop">
+        <canvas id="backgroundCanvas"></canvas>
+        
+        <!-- Верхняя панель -->
+        <div class="top-bar">
+            <div class="top-bar-left">
+                <div class="micim-logo">
+                    <i class="fas fa-circle"></i>
+                    <span>micim</span>
+                </div>
+                <div class="time-display" id="currentTime"></div>
+                <div class="date-display" id="currentDate"></div>
+            </div>
+            <div class="top-bar-right">
+                <div class="system-tray">
+                    <i class="fas fa-wifi" id="wifiIcon" style="color: #0d6efd;"></i>
+                    <i class="fas fa-bluetooth-b" id="bluetoothIcon" style="color: #6c757d;"></i>
+                    <i class="fas fa-volume-up" id="volumeIcon"></i>
+                    <span id="batteryLevel">98%</span>
+                    <i class="fas fa-battery-three-quarters" id="batteryIcon"></i>
+                </div>
+                <button class="icon-btn" onclick="toggleControlCenter()">
+                    <i class="fas fa-sliders-h"></i>
+                </button>
+                <button class="icon-btn" onclick="toggleUserMenu()">
+                    <i class="fas fa-user"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Центр управления -->
+        <div class="control-center" id="controlCenter">
+            <div class="control-section">
+                <h4>Беспроводные сети</h4>
+                <div class="control-item" onclick="toggleWiFi()">
+                    <i class="fas fa-wifi"></i>
+                    <span>Wi-Fi</span>
+                    <div class="toggle active" id="wifiToggle"></div>
+                </div>
+                <div class="control-item" onclick="toggleBluetooth()">
+                    <i class="fas fa-bluetooth"></i>
+                    <span>Bluetooth</span>
+                    <div class="toggle" id="bluetoothToggle"></div>
+                </div>
+            </div>
+            <div class="control-section">
+                <h4>Звук</h4>
+                <div class="control-item" onclick="toggleSound()">
+                    <i class="fas fa-volume-up"></i>
+                    <span>Звук</span>
+                    <div class="toggle active" id="soundToggle"></div>
+                </div>
+                <div class="slider-container">
+                    <input type="range" min="0" max="100" value="70" id="volumeSlider" oninput="updateVolume(this.value)">
+                </div>
+            </div>
+            <div class="control-section">
+                <h4>Яркость</h4>
+                <div class="slider-container">
+                    <input type="range" min="0" max="100" value="80" id="brightnessSlider" oninput="updateBrightness(this.value)">
+                </div>
+            </div>
+            <div class="control-section">
+                <h4>Сейчас играет</h4>
+                <div class="now-playing" id="nowPlayingWidget">
+                    <i class="fas fa-music"></i>
+                    <span id="nowPlayingText">Ambient Micim</span>
+                </div>
+                <div class="music-controls">
+                    <button onclick="previousTrack()"><i class="fas fa-backward"></i></button>
+                    <button onclick="playPauseMusic()"><i class="fas fa-play" id="playPauseIcon"></i></button>
+                    <button onclick="nextTrack()"><i class="fas fa-forward"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Меню пользователя -->
+        <div class="user-menu" id="userMenu">
+            <div class="user-info">
+                <img src="https://i.ibb.co/HT71Ghdd/photo-output.png" alt="avatar">
+                <div>
+                    <h4 id="userName">Игрок Micim</h4>
+                    <p id="userEmail">player@micim.local</p>
+                </div>
+            </div>
+            <div class="menu-items">
+                <button onclick="openApp('settings')">
+                    <i class="fas fa-cog"></i> Настройки
+                </button>
+                <button onclick="openApp('profile')">
+                    <i class="fas fa-user-circle"></i> Профиль
+                </button>
+                <button onclick="syncAll()">
+                    <i class="fas fa-sync-alt"></i> Синхронизация
+                </button>
+                <button onclick="lockScreen()">
+                    <i class="fas fa-lock"></i> Заблокировать
+                </button>
+                <button onclick="showShutdownMenu()">
+                    <i class="fas fa-power-off"></i> Питание
+                </button>
+            </div>
+        </div>
+
+        <!-- Иконки приложений (основные) -->
+        <div class="app-grid">
+            <div class="app-icon" onclick="openApp('store')" data-tooltip="Магазин приложений">
+                <div class="icon-bg" style="background: #0066cc">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <span>Магазин</span>
+            </div>
+            <div class="app-icon" onclick="openApp('music')" data-tooltip="Музыкальный плеер">
+                <div class="icon-bg" style="background: #cc00cc">
+                    <i class="fas fa-music"></i>
+                </div>
+                <span>Музыка</span>
+            </div>
+            <div class="app-icon" onclick="openApp('games')" data-tooltip="Игры">
+                <div class="icon-bg" style="background: #00cc66">
+                    <i class="fas fa-gamepad"></i>
+                </div>
+                <span>Игры</span>
+            </div>
+            <div class="app-icon" onclick="openApp('photos')" data-tooltip="Галерея">
+                <div class="icon-bg" style="background: #ff6600">
+                    <i class="fas fa-images"></i>
+                </div>
+                <span>Галерея</span>
+            </div>
+            <div class="app-icon" onclick="openApp('browser')" data-tooltip="Браузер">
+                <div class="icon-bg" style="background: #ffaa00">
+                    <i class="fas fa-globe"></i>
+                </div>
+                <span>Браузер</span>
+            </div>
+            <div class="app-icon" onclick="openApp('calculator')" data-tooltip="Калькулятор">
+                <div class="icon-bg" style="background: #ff4444">
+                    <i class="fas fa-calculator"></i>
+                </div>
+                <span>Калькулятор</span>
+            </div>
+            <div class="app-icon" onclick="openApp('notes')" data-tooltip="Заметки">
+                <div class="icon-bg" style="background: #996633">
+                    <i class="fas fa-pen"></i>
+                </div>
+                <span>Заметки</span>
+            </div>
+            <div class="app-icon" onclick="openApp('files')" data-tooltip="Файлы">
+                <div class="icon-bg" style="background: #666666">
+                    <i class="fas fa-folder"></i>
+                </div>
+                <span>Файлы</span>
+            </div>
+            <div class="app-icon" onclick="openApp('terminal')" data-tooltip="Терминал">
+                <div class="icon-bg" style="background: #333333">
+                    <i class="fas fa-terminal"></i>
+                </div>
+                <span>Терминал</span>
+            </div>
+            <div class="app-icon" onclick="openApp('settings')" data-tooltip="Настройки">
+                <div class="icon-bg" style="background: #8e44ad">
+                    <i class="fas fa-cog"></i>
+                </div>
+                <span>Настройки</span>
+            </div>
+        </div>
+
+        <!-- Окна приложений -->
+        
+        <!-- МАГАЗИН -->
+        <div class="app-window" id="store">
+            <div class="window-header">
+                <h2><i class="fas fa-shopping-cart"></i> Магазин приложений</h2>
+                <button class="close-btn" onclick="closeWindow('store')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="window-content">
+                <div class="store-search">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Поиск приложений..." id="storeSearch" oninput="filterApps()">
+                </div>
+                <div class="store-categories">
+                    <button class="category-btn active" onclick="filterCategory('all')">Все</button>
+                    <button class="category-btn" onclick="filterCategory('games')">Игры</button>
+                    <button class="category-btn" onclick="filterCategory('tools')">Инструменты</button>
+                    <button class="category-btn" onclick="filterCategory('media')">Медиа</button>
+                </div>
+                <div class="apps-grid" id="appsGrid"></div>
+            </div>
+        </div>
+
+        <!-- ИГРЫ -->
+        <div class="app-window" id="games">
+            <div class="window-header">
+                <h2><i class="fas fa-gamepad"></i> Micim Games</h2>
+                <button class="close-btn" onclick="closeWindow('games')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="window-content">
+                <div class="games-container">
+                    <!-- Змейка -->
+                    <div class="game-card" onclick="openGame('snake')">
+                        <div class="game-preview snake-preview">
+                            <canvas id="snakePreview" width="200" height="150"></canvas>
+                        </div>
+                        <h3>Змейка</h3>
+                        <p>Классическая игра</p>
+                        <div class="game-stats">
+                            <span>Рекорд: <span id="snakeHighScore">0</span></span>
+                            <span>Игр: <span id="snakeGamesPlayed">0</span></span>
+                        </div>
+                        <button class="play-btn" onclick="openGame('snake'); event.stopPropagation()">
+                            <i class="fas fa-play"></i> Играть
+                        </button>
+                    </div>
+
+                    <!-- Тетрис -->
+                    <div class="game-card" onclick="openGame('tetris')">
+                        <div class="game-preview tetris-preview">
+                            <canvas id="tetrisPreview" width="200" height="150"></canvas>
+                        </div>
+                        <h3>Тетрис</h3>
+                        <p>Складывай блоки</p>
+                        <div class="game-stats">
+                            <span>Рекорд: <span id="tetrisHighScore">0</span></span>
+                            <span>Игр: <span id="tetrisGamesPlayed">0</span></span>
+                        </div>
+                        <button class="play-btn" onclick="openGame('tetris'); event.stopPropagation()">
+                            <i class="fas fa-play"></i> Играть
+                        </button>
+                    </div>
+
+                    <!-- 2048 -->
+                    <div class="game-card" onclick="openGame('2048')">
+                        <div class="game-preview game2048-preview">
+                            <canvas id="game2048Preview" width="200" height="150"></canvas>
+                        </div>
+                        <h3>2048</h3>
+                        <p>Сложи плитки</p>
+                        <div class="game-stats">
+                            <span>Рекорд: <span id="game2048HighScore">0</span></span>
+                            <span>Игр: <span id="game2048GamesPlayed">0</span></span>
+                        </div>
+                        <button class="play-btn" onclick="openGame('2048'); event.stopPropagation()">
+                            <i class="fas fa-play"></i> Играть
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ЗМЕЙКА (игровое окно) -->
+        <div class="app-window" id="gameSnake">
+            <div class="window-header">
+                <h2><i class="fas fa-gamepad"></i> Змейка</h2>
+                <div class="game-header-controls">
+                    <span class="game-score" id="snakeScore">Счет: 0</span>
+                    <button class="restart-btn" onclick="restartSnake()">
+                        <i class="fas fa-redo-alt"></i>
+                    </button>
+                    <button class="close-btn" onclick="closeWindow('gameSnake')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="window-content game-content">
+                <div class="game-container">
+                    <canvas id="snakeCanvas" width="400" height="400"></canvas>
+                    <div class="game-controls">
+                        <div class="control-row">
+                            <button class="arrow-btn" onclick="snakeSetDirection('up')">↑</button>
+                        </div>
+                        <div class="control-row">
+                            <button class="arrow-btn" onclick="snakeSetDirection('left')">←</button>
+                            <button class="arrow-btn" onclick="snakeSetDirection('down')">↓</button>
+                            <button class="arrow-btn" onclick="snakeSetDirection('right')">→</button>
+                        </div>
+                        <button class="pause-btn" onclick="toggleSnakePause()">
+                            <i class="fas fa-pause" id="snakePauseIcon"></i> Пауза
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ТЕТРИС -->
+        <div class="app-window" id="gameTetris">
+            <div class="window-header">
+                <h2><i class="fas fa-th-large"></i> Тетрис</h2>
+                <div class="game-header-controls">
+                    <span class="game-score" id="tetrisScore">Счет: 0</span>
+                    <span class="game-level" id="tetrisLevel">Уровень: 1</span>
+                    <button class="restart-btn" onclick="restartTetris()">
+                        <i class="fas fa-redo-alt"></i>
+                    </button>
+                    <button class="close-btn" onclick="closeWindow('gameTetris')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="window-content game-content">
+                <div class="tetris-container">
+                    <canvas id="tetrisCanvas" width="300" height="600"></canvas>
+                    <div class="tetris-info">
+                        <div class="next-piece">
+                            <h4>Следующая:</h4>
+                            <canvas id="nextPieceCanvas" width="120" height="120"></canvas>
+                        </div>
+                        <div class="tetris-controls">
+                            <button onclick="tetrisMove('left')">←</button>
+                            <button onclick="tetrisMove('right')">→</button>
+                            <button onclick="tetrisRotate()">↻</button>
+                            <button onclick="tetrisHardDrop()">↓</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2048 -->
+        <div class="app-window" id="game2048">
+            <div class="window-header">
+                <h2><i class="fas fa-th"></i> 2048</h2>
+                <div class="game-header-controls">
+                    <span class="game-score" id="game2048Score">Счет: 0</span>
+                    <button class="restart-btn" onclick="restart2048()">
+                        <i class="fas fa-redo-alt"></i>
+                    </button>
+                    <button class="close-btn" onclick="closeWindow('game2048')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="window-content game-content">
+                <div class="game2048-container">
+                    <div class="grid-container" id="grid2048"></div>
+                    <div class="game2048-controls">
+                        <button onclick="game2048Move('up')">↑</button>
+                        <button onclick="game2048Move('left')">←</button>
+                        <button onclick="game2048Move('down')">↓</button>
+                        <button onclick="game2048Move('right')">→</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- МУЗЫКА -->
+        <div class="app-window" id="music">
+            <div class="window-header">
+                <h2><i class="fas fa-music"></i> Музыка</h2>
+                <button class="close-btn" onclick="closeWindow('music')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="window-content">
+                <div class="music-player-full">
+                    <div class="album-art" id="albumArt">
+                        <i class="fas fa-circle-notch fa-spin"></i>
+                    </div>
+                    <div class="track-info">
+                        <h3 id="currentTrackTitle">Ambient Micim</h3>
+                        <p id="currentTrackArtist">Micim Sound</p>
+                    </div>
+                    <div class="progress-container">
+                        <span id="currentTimeMusic">0:00</span>
+                        <div class="progress-bar" onclick="seekMusic(event)">
+                            <div class="progress-fill" id="musicProgress" style="width: 0%"></div>
+                        </div>
+                        <span id="totalTimeMusic">3:45</span>
+                    </div>
+                    <div class="volume-control">
+                        <i class="fas fa-volume-down"></i>
+                        <input type="range" min="0" max="100" value="70" id="musicVolume" oninput="setMusicVolume(this.value)">
+                        <i class="fas fa-volume-up"></i>
+                    </div>
+                    <div class="music-controls-large">
+                        <button onclick="previousTrack()"><i class="fas fa-backward"></i></button>
+                        <button class="play-pause-main" onclick="playPauseMusic()">
+                            <i class="fas fa-play" id="playPauseBigIcon"></i>
+                        </button>
+                        <button onclick="nextTrack()"><i class="fas fa-forward"></i></button>
+                    </div>
+                    <div class="playlist-section">
+                        <h4>Плейлист</h4>
+                        <div class="playlist" id="playlist">
+                            <div class="playlist-item active" onclick="playTrack(0)">
+                                <i class="fas fa-music"></i>
+                                <span>Ambient Micim</span>
+                                <span class="duration">3:45</span>
+                            </div>
+                            <div class="playlist-item" onclick="playTrack(1)">
+                                <i class="fas fa-music"></i>
+                                <span>Micim Dreams</span>
+                                <span class="duration">4:20</span>
+                            </div>
+                            <div class="playlist-item" onclick="playTrack(2)">
+                                <i class="fas fa-music"></i>
+                                <span>Console Vibes</span>
+                                <span class="duration">3:15</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ГАЛЕРЕЯ -->
+        <div class="app-window" id="photos">
+            <div class="window-header">
+                <h2><i class="fas fa-images"></i> Галерея</h2>
+                <button class="close-btn" onclick="closeWindow('photos')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="window-content">
+                <div class="photos-toolbar">
+                    <button onclick="importPhotos()">
+                        <i class="fas fa-upload"></i> Импорт
+                    </button>
+                    <button onclick="createAlbum()">
+                        <i class="fas fa-folder-plus"></i> Альбом
+                    </button>
+                    <button onclick="slideshow()">
+                        <i class="fas fa-play"></i> Слайд-шоу
+                    </button>
+                </div>
+                <div class="photos-grid" id="photosGrid"></div>
+            </div>
+        </div>
+
+        <!-- КАЛЬКУЛЯТОР -->
+        <div class="app-window" id="calculator">
+            <div class="window-header">
+                <h2><i class="fas fa-calculator"></i> Калькулятор</h2>
+                <button class="close-btn" onclick="closeWindow('calculator')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="window-content">
+                <div class="calculator">
+                    <div class="calc-display" id="calcDisplay">0</div>
+                    <div class="calc-buttons">
+                        <button onclick="calcInput('C')" class="calc-clear">C</button>
+                        <button onclick="calcInput('±')" class="calc-operator">±</button>
+                        <button onclick="calcInput('%')" class="calc-operator">%</button>
+                        <button onclick="calcInput('/')" class="calc-operator">÷</button>
+                        
+                        <button onclick="calcInput('7')">7</button>
+                        <button onclick="calcInput('8')">8</button>
+                        <button onclick="calcInput('9')">9</button>
+                        <button onclick="calcInput('*')" class="calc-operator">×</button>
+                        
+                        <button onclick="calcInput('4')">4</button>
+                        <button onclick="calcInput('5')">5</button>
+                        <button onclick="calcInput('6')">6</button>
+                        <button onclick="calcInput('-')" class="calc-operator">−</button>
+                        
+                        <button onclick="calcInput('1')">1</button>
+                        <button onclick="calcInput('2')">2</button>
+                        <button onclick="calcInput('3')">3</button>
+                        <button onclick="calcInput('+')" class="calc-operator">+</button>
+                        
+                        <button onclick="calcInput('0')" class="calc-zero">0</button>
+                        <button onclick="calcInput('.')">.</button>
+                        <button onclick="calcInput('=')" class="calc-equals">=</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ЗАМЕТКИ -->
+        <div class="app-window" id="notes">
+            <div class="window-header">
+                <h2><i class="fas fa-pen"></i> Заметки</h2>
+                <div class="window-header-controls">
+                    <button onclick="newNote()">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <button onclick="saveNote()">
+                        <i class="fas fa-save"></i>
+                    </button>
+                    <button class="close-btn" onclick="closeWindow('notes')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="window-content notes-container">
+                <div class="notes-sidebar">
+                    <div class="notes-list" id="notesList"></div>
+                </div>
+                <div class="note-editor">
+                    <input type="text" placeholder="Заголовок" id="noteTitle" class="note-title-input">
+                    <textarea placeholder="Текст заметки..." id="noteContent" class="note-content-input"></textarea>
+                    <div class="note-status" id="noteStatus"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ФАЙЛЫ (для модов) -->
+        <div class="app-window" id="files">
+            <div class="window-header">
+                <h2><i class="fas fa-folder"></i> Файлы</h2>
+                <button class="close-btn" onclick="closeWindow('files')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="window-content">
+                <div class="file-manager">
+                    <div class="file-sidebar">
+                        <div class="file-location active" onclick="navigateTo('root')">
+                            <i class="fas fa-home"></i> Главная
+                        </div>
+                        <div class="file-location" onclick="navigateTo('mods')">
+                            <i class="fas fa-cube"></i> Моды
+                        </div>
+                        <div class="file-location" onclick="navigateTo('config')">
+                            <i class="fas fa-cog"></i> Конфиги
+                        </div>
+                        <div class="file-location" onclick="navigateTo('saves')">
+                            <i class="fas fa-save"></i> Сохранения
+                        </div>
+                    </div>
+                    <div class="file-content">
+                        <div class="file-path" id="currentPath">/</div>
+                        <div class="file-grid" id="fileGrid"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ТЕРМИНАЛ -->
+        <div class="app-window" id="terminal">
+            <div class="window-header">
+                <h2><i class="fas fa-terminal"></i> Терминал</h2>
+                <button class="close-btn" onclick="closeWindow('terminal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="window-content terminal">
+                <div class="terminal-output" id="terminalOutput">
+                    <div>Micim OS v2.0</div>
+                    <div>Тип 'help' для списка команд</div>
+                </div>
+                <div class="terminal-input-line">
+                    <span class="prompt">$</span>
+                    <input type="text" id="terminalInput" onkeypress="handleTerminalCommand(event)" autocomplete="off">
+                </div>
+            </div>
+        </div>
+
+        <!-- НАСТРОЙКИ -->
+        <div class="app-window" id="settings">
+            <div class="window-header">
+                <h2><i class="fas fa-cog"></i> Настройки</h2>
+                <button class="close-btn" onclick="closeWindow('settings')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="window-content">
+                <div class="settings-container">
+                    <div class="settings-sidebar">
+                        <button class="settings-tab active" onclick="switchSettingsTab('general')">
+                            <i class="fas fa-sliders-h"></i> Основные
+                        </button>
+                        <button class="settings-tab" onclick="switchSettingsTab('appearance')">
+                            <i class="fas fa-paint-brush"></i> Внешний вид
+                        </button>
+                        <button class="settings-tab" onclick="switchSettingsTab('sound')">
+                            <i class="fas fa-volume-up"></i> Звук
+                        </button>
+                        <button class="settings-tab" onclick="switchSettingsTab('network')">
+                            <i class="fas fa-wifi"></i> Сеть
+                        </button>
+                        <button class="settings-tab" onclick="switchSettingsTab('storage')">
+                            <i class="fas fa-database"></i> Хранилище
+                        </button>
+                        <button class="settings-tab" onclick="switchSettingsTab('about')">
+                            <i class="fas fa-info-circle"></i> О системе
+                        </button>
+                    </div>
+                    <div class="settings-content" id="settingsContent">
+                        <!-- Контент будет загружаться динамически -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ПРОФИЛЬ -->
+        <div class="app-window" id="profile">
+            <div class="window-header">
+                <h2><i class="fas fa-user-circle"></i> Профиль</h2>
+                <button class="close-btn" onclick="closeWindow('profile')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="window-content">
+                <div class="profile-container">
+                    <div class="profile-avatar">
+                        <img src="https://i.ibb.co/HT71Ghdd/photo-output.png" alt="avatar">
+                        <button onclick="changeAvatar()">
+                            <i class="fas fa-camera"></i>
+                        </button>
+                    </div>
+                    <div class="profile-info">
+                        <label>Имя пользователя</label>
+                        <input type="text" value="Игрок Micim" id="profileName" onchange="updateProfile()">
+                        
+                        <label>Email</label>
+                        <input type="email" value="player@micim.local" id="profileEmail" onchange="updateProfile()">
+                        
+                        <label>Статус</label>
+                        <select id="profileStatus" onchange="updateProfile()">
+                            <option>Онлайн</option>
+                            <option>Отошел</option>
+                            <option>Не беспокоить</option>
+                        </select>
+                    </div>
+                    <div class="profile-stats">
+                        <h4>Статистика</h4>
+                        <p>Игр сыграно: <span id="totalGamesPlayed">0</span></p>
+                        <p>Время в системе: <span id="totalUptime">0 ч</span></p>
+                        <p>Заметок: <span id="totalNotes">0</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- БРАУЗЕР -->
+        <div class="app-window" id="browser">
+            <div class="window-header">
+                <h2><i class="fas fa-globe"></i> Micim Browser</h2>
+                <button class="close-btn" onclick="closeWindow('browser')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="window-content">
+                <div class="browser-toolbar">
+                    <button onclick="browserBack()"><i class="fas fa-arrow-left"></i></button>
+                    <button onclick="browserForward()"><i class="fas fa-arrow-right"></i></button>
+                    <button onclick="browserRefresh()"><i class="fas fa-redo-alt"></i></button>
+                    <div class="browser-url">
+                        <input type="text" id="browserUrl" value="https://micim.local" onkeypress="browserNavigate(event)">
+                    </div>
+                    <button onclick="browserHome()"><i class="fas fa-home"></i></button>
+                </div>
+                <div class="browser-view" id="browserView">
+                    <iframe id="browserFrame" src="about:blank"></iframe>
+                </div>
+            </div>
+        </div>
+
+        <!-- Нижняя панель -->
+        <div class="bottom-bar">
+            <button class="home-btn" onclick="showHome()">
+                <i class="fas fa-circle"></i>
+            </button>
+            <div class="taskbar" id="taskbar"></div>
+            <div class="bottom-bar-right">
+                <button class="volume-indicator" onclick="toggleMute()">
+                    <i class="fas fa-volume-up" id="volumeIndicatorIcon"></i>
+                </button>
+                <span id="bottomTime"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Аудио -->
+    <audio id="welcomeMusic" loop>
+        <source src="https://github.com/Soinnofi/Micim-1/blob/6c3e0108c3937b67c6d2b61610185faafbb1c2ac/Micim-background-music-1.mp3?raw=true" type="audio/mpeg">
+    </audio>
+    <audio id="backgroundMusic" loop>
+        <source src="https://github.com/Soinnofi/Micim-1/blob/6c3e0108c3937b67c6d2b61610185faafbb1c2ac/Micim-background-music.mp3?raw=true" type="audio/mpeg">
+    </audio>
+
+    <script src="script.js"></script>
+</body>
+</html>
+    <script  src="./script.js"></script>
+
+  </body>
+  
+</html>
